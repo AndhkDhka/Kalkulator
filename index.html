@@ -494,17 +494,116 @@
       .fade-up {
         animation: fadeUp 0.35s ease both;
       }
+
+      /* LOADER BACKGROUND */
+      #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #e6e6f4, #dcdcf3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      /* LOGO */
+      .logo-loader {
+        width: 120px;
+        animation:
+          logoIn 1.2s ease forwards,
+          pulse 1.2s ease-in-out 1.2s,
+          logoOut 0.8s ease forwards 2.2s;
+      }
+
+      /* MASUK */
+      @keyframes logoIn {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* PULSE HALUS */
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+        }
+      }
+
+      /* KELUAR */
+      @keyframes logoOut {
+        to {
+          transform: scale(1.4);
+          opacity: 0;
+        }
+      }
+
+      /* TRANSISI APP */
+      #app.show {
+        animation: appFade 0.6s ease forwards;
+      }
+
+      @keyframes appFade {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
 
   <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log('Service Worker Registered'));
-}
-</script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then(() => console.log("Service Worker Registered"));
+    }
+  </script>
+
+  <script>
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("loader");
+      const app = document.getElementById("app");
+
+      // Total durasi animasi (~3 detik)
+      setTimeout(() => {
+        loader.style.transition = "opacity 0.4s ease";
+        loader.style.opacity = "0";
+
+        setTimeout(() => {
+          loader.style.display = "none";
+          app.classList.add("show");
+        }, 400);
+      }, 3000);
+    });
+  </script>
 
   <body>
+    <div id="loader">
+      <div class="loader-content">
+        <img src="icon-512.png" class="logo-loader" />
+      </div>
+    </div>
+
+    <div id="app" style="opacity: 0">
+      <!-- SEMUA isi web kamu pindahkan ke sini -->
+    </div>
+
     <div class="wrapper">
       <!-- Header -->
       <div class="header fade-up">
