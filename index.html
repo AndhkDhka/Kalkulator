@@ -1,704 +1,1043 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kalkulator Interpolasi Polinom</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<style>
-  :root {
-    --bg: #e6e6f4;
-    --surface: #eaeaf8;
-    --card: #ededfb;
-    --shadow-light: #ffffff;
-    --shadow-dark: #c8c8e0;
-    --text-primary: #3a3a6e;
-    --text-secondary: #7070a8;
-    --text-muted: #9898c0;
-    --accent: #5c5ba8;
-    --accent-soft: rgba(92,91,168,0.12);
-    --coral: #f4836a;
-    --coral-soft: rgba(244,131,106,0.15);
-    --success: #5ba88a;
-    --success-soft: rgba(91,168,138,0.12);
-    --border: rgba(92,91,168,0.12);
-    --radius: 20px;
-    --radius-sm: 14px;
-    --radius-xs: 10px;
-  }
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#5c5ba8" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Interpolasi Polinom</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --bg: #e6e6f4;
+        --surface: #eaeaf8;
+        --card: #ededfb;
+        --shadow-light: #ffffff;
+        --shadow-dark: #c8c8e0;
+        --text-primary: #3a3a6e;
+        --text-secondary: #7070a8;
+        --text-muted: #9898c0;
+        --accent: #5c5ba8;
+        --accent-soft: rgba(92, 91, 168, 0.12);
+        --coral: #f4836a;
+        --coral-soft: rgba(244, 131, 106, 0.15);
+        --success: #5ba88a;
+        --success-soft: rgba(91, 168, 138, 0.12);
+        --border: rgba(92, 91, 168, 0.12);
+        --radius: 20px;
+        --radius-sm: 14px;
+        --radius-xs: 10px;
+      }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  body {
-    background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-primary);
-    min-height: 100vh;
-    padding: 40px 20px 60px;
-  }
+      body {
+        background: var(--bg);
+        font-family: "DM Sans", sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 40px 20px 60px;
+      }
 
-  /* ─── Neumorphic helpers ─── */
-  .neu {
-    background: var(--surface);
-    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
-    border-radius: var(--radius);
-  }
-  .neu-inset {
-    background: var(--bg);
-    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
-    border-radius: var(--radius-xs);
-  }
-  .neu-btn {
-    background: var(--surface);
-    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-    border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem; font-weight: 500; color: var(--text-primary);
-    border-radius: var(--radius-sm); padding: 10px 18px;
-    transition: all 0.15s ease; user-select: none;
-  }
-  .neu-btn:hover { box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light); }
-  .neu-btn:active { box-shadow: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light); transform: scale(0.98); }
+      /* ─── Neumorphic helpers ─── */
+      .neu {
+        background: var(--surface);
+        box-shadow:
+          6px 6px 14px var(--shadow-dark),
+          -6px -6px 14px var(--shadow-light);
+        border-radius: var(--radius);
+      }
+      .neu-inset {
+        background: var(--bg);
+        box-shadow:
+          inset 4px 4px 10px var(--shadow-dark),
+          inset -4px -4px 10px var(--shadow-light);
+        border-radius: var(--radius-xs);
+      }
+      .neu-btn {
+        background: var(--surface);
+        box-shadow:
+          4px 4px 10px var(--shadow-dark),
+          -4px -4px 10px var(--shadow-light);
+        border: none;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        border-radius: var(--radius-sm);
+        padding: 10px 18px;
+        transition: all 0.15s ease;
+        user-select: none;
+      }
+      .neu-btn:hover {
+        box-shadow:
+          5px 5px 12px var(--shadow-dark),
+          -5px -5px 12px var(--shadow-light);
+      }
+      .neu-btn:active {
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        transform: scale(0.98);
+      }
 
-  /* ─── Layout ─── */
-  .wrapper { max-width: 900px; margin: 0 auto; }
+      /* ─── Layout ─── */
+      .wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+      }
 
-  /* ─── Header ─── */
-  .header {
-    text-align: center;
-    margin-bottom: 36px;
-  }
-  .header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.7rem, 4vw, 2.4rem);
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-  }
-  .header h1 span { color: var(--accent); font-style: italic; }
-  .header p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; font-weight: 300; }
+      /* ─── Header ─── */
+      .header {
+        text-align: center;
+        margin-bottom: 36px;
+      }
+      .header h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+      }
+      .header h1 span {
+        color: var(--accent);
+        font-style: italic;
+      }
+      .header p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-top: 6px;
+        font-weight: 300;
+      }
 
-  /* ─── Card ─── */
-  .card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 28px 28px;
-    box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
-    margin-bottom: 20px;
-  }
-  .card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.05rem;
-    color: var(--text-primary);
-    margin-bottom: 18px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-title .icon {
-    width: 28px; height: 28px;
-    background: var(--accent-soft);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.9rem;
-  }
+      /* ─── Card ─── */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 28px 28px;
+        box-shadow:
+          8px 8px 20px var(--shadow-dark),
+          -8px -8px 20px var(--shadow-light);
+        margin-bottom: 20px;
+      }
+      .card-title {
+        font-family: "DM Serif Display", serif;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-title .icon {
+        width: 28px;
+        height: 28px;
+        background: var(--accent-soft);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
 
-  /* ─── Method Toggle ─── */
-  .method-toggle {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .method-btn {
-    padding: 14px 10px; text-align: center;
-    background: var(--surface); border: none; cursor: pointer;
-    border-radius: var(--radius-sm);
-    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-    transition: all 0.2s ease; font-family: 'DM Sans', sans-serif;
-    color: var(--text-secondary); font-size: 0.88rem; font-weight: 400;
-  }
-  .method-btn .method-label { font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 2px; }
-  .method-btn .method-sub { font-size: 0.76rem; color: var(--text-muted); }
-  .method-btn.active {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 3px 3px 10px rgba(92,91,168,0.35), -2px -2px 8px var(--shadow-light);
-  }
-  .method-btn.active .method-label, .method-btn.active .method-sub { color: rgba(255,255,255,0.9); }
+      /* ─── Method Toggle ─── */
+      .method-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .method-btn {
+        padding: 14px 10px;
+        text-align: center;
+        background: var(--surface);
+        border: none;
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        box-shadow:
+          4px 4px 10px var(--shadow-dark),
+          -4px -4px 10px var(--shadow-light);
+        transition: all 0.2s ease;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        font-weight: 400;
+      }
+      .method-btn .method-label {
+        font-weight: 600;
+        display: block;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+      }
+      .method-btn .method-sub {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+      }
+      .method-btn.active {
+        background: var(--accent);
+        color: #fff;
+        box-shadow:
+          3px 3px 10px rgba(92, 91, 168, 0.35),
+          -2px -2px 8px var(--shadow-light);
+      }
+      .method-btn.active .method-label,
+      .method-btn.active .method-sub {
+        color: rgba(255, 255, 255, 0.9);
+      }
 
-  /* ─── Points Table ─── */
-  .points-header {
-    display: grid; grid-template-columns: 1fr 1fr 40px;
-    gap: 10px; margin-bottom: 8px; padding: 0 4px;
-  }
-  .points-header span { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+      /* ─── Points Table ─── */
+      .points-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr 40px;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 0 4px;
+      }
+      .points-header span {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
 
-  .point-row {
-    display: grid; grid-template-columns: 1fr 1fr 40px;
-    gap: 10px; margin-bottom: 10px; align-items: center;
-  }
-  .point-input {
-    background: var(--bg);
-    box-shadow: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
-    border: none; border-radius: var(--radius-xs);
-    padding: 12px 14px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem; color: var(--text-primary);
-    outline: none; width: 100%; transition: box-shadow 0.2s;
-  }
-  .point-input:focus {
-    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light),
-                0 0 0 2px var(--accent);
-  }
-  .point-input::placeholder { color: var(--text-muted); }
-  .delete-btn {
-    width: 36px; height: 36px; border: none; border-radius: 10px; cursor: pointer;
-    background: var(--coral-soft); color: var(--coral); font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s; box-shadow: 2px 2px 6px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
-    flex-shrink: 0;
-  }
-  .delete-btn:hover { background: var(--coral); color: #fff; }
+      .point-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 40px;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .point-input {
+        background: var(--bg);
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        border: none;
+        border-radius: var(--radius-xs);
+        padding: 12px 14px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        outline: none;
+        width: 100%;
+        transition: box-shadow 0.2s;
+      }
+      .point-input:focus {
+        box-shadow:
+          inset 4px 4px 10px var(--shadow-dark),
+          inset -4px -4px 10px var(--shadow-light),
+          0 0 0 2px var(--accent);
+      }
+      .point-input::placeholder {
+        color: var(--text-muted);
+      }
+      .delete-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: var(--coral-soft);
+        color: var(--coral);
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        box-shadow:
+          2px 2px 6px var(--shadow-dark),
+          -2px -2px 6px var(--shadow-light);
+        flex-shrink: 0;
+      }
+      .delete-btn:hover {
+        background: var(--coral);
+        color: #fff;
+      }
 
-  .add-btn {
-    width: 100%; padding: 12px;
-    background: var(--accent-soft);
-    color: var(--accent); font-weight: 600;
-    box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
-    border-radius: var(--radius-sm); border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-    transition: all 0.15s; margin-top: 4px;
-  }
-  .add-btn:hover { background: var(--accent); color: #fff; }
+      .add-btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+        box-shadow:
+          3px 3px 8px var(--shadow-dark),
+          -3px -3px 8px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.88rem;
+        transition: all 0.15s;
+        margin-top: 4px;
+      }
+      .add-btn:hover {
+        background: var(--accent);
+        color: #fff;
+      }
 
-  /* ─── X Target ─── */
-  .x-target-row { display: flex; gap: 12px; align-items: center; }
-  .x-label { font-size: 0.88rem; font-weight: 500; white-space: nowrap; color: var(--text-secondary); }
+      /* ─── X Target ─── */
+      .x-target-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .x-label {
+        font-size: 0.88rem;
+        font-weight: 500;
+        white-space: nowrap;
+        color: var(--text-secondary);
+      }
 
-  /* ─── Calculate Button ─── */
-  .calc-btn {
-    width: 100%; padding: 16px;
-    background: var(--accent);
-    color: #fff; border: none; border-radius: var(--radius-sm);
-    font-family: 'DM Serif Display', serif; font-size: 1.1rem;
-    cursor: pointer; letter-spacing: 0.3px;
-    box-shadow: 5px 5px 14px rgba(92,91,168,0.4), -4px -4px 10px var(--shadow-light);
-    transition: all 0.2s;
-  }
-  .calc-btn:hover { transform: translateY(-2px); box-shadow: 7px 7px 18px rgba(92,91,168,0.45), -4px -4px 10px var(--shadow-light); }
-  .calc-btn:active { transform: translateY(0); }
+      /* ─── Calculate Button ─── */
+      .calc-btn {
+        width: 100%;
+        padding: 16px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: "DM Serif Display", serif;
+        font-size: 1.1rem;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        box-shadow:
+          5px 5px 14px rgba(92, 91, 168, 0.4),
+          -4px -4px 10px var(--shadow-light);
+        transition: all 0.2s;
+      }
+      .calc-btn:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          7px 7px 18px rgba(92, 91, 168, 0.45),
+          -4px -4px 10px var(--shadow-light);
+      }
+      .calc-btn:active {
+        transform: translateY(0);
+      }
 
-  /* ─── Error ─── */
-  .error-msg {
-    background: var(--coral-soft);
-    border: 1px solid rgba(244,131,106,0.3);
-    color: var(--coral); border-radius: var(--radius-xs);
-    padding: 12px 16px; font-size: 0.84rem; font-weight: 500;
-    display: none; margin-top: 12px;
-  }
-  .error-msg.show { display: block; }
+      /* ─── Error ─── */
+      .error-msg {
+        background: var(--coral-soft);
+        border: 1px solid rgba(244, 131, 106, 0.3);
+        color: var(--coral);
+        border-radius: var(--radius-xs);
+        padding: 12px 16px;
+        font-size: 0.84rem;
+        font-weight: 500;
+        display: none;
+        margin-top: 12px;
+      }
+      .error-msg.show {
+        display: block;
+      }
 
-  /* ─── Results ─── */
-  .result-section { display: none; }
-  .result-section.show { display: block; }
+      /* ─── Results ─── */
+      .result-section {
+        display: none;
+      }
+      .result-section.show {
+        display: block;
+      }
 
-  .result-answer {
-    text-align: center; padding: 28px 20px;
-    background: linear-gradient(135deg, var(--accent) 0%, #7c7bd4 100%);
-    border-radius: var(--radius); margin-bottom: 20px;
-    box-shadow: 6px 6px 16px rgba(92,91,168,0.35), -4px -4px 12px var(--shadow-light);
-  }
-  .result-answer .answer-label { color: rgba(255,255,255,0.75); font-size: 0.82rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .result-answer .answer-value { color: #fff; font-family: 'DM Serif Display', serif; font-size: 2.4rem; }
-  .result-answer .answer-meta { color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-top: 6px; }
+      .result-answer {
+        text-align: center;
+        padding: 28px 20px;
+        background: linear-gradient(135deg, var(--accent) 0%, #7c7bd4 100%);
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+        box-shadow:
+          6px 6px 16px rgba(92, 91, 168, 0.35),
+          -4px -4px 12px var(--shadow-light);
+      }
+      .result-answer .answer-label {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.82rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+      .result-answer .answer-value {
+        color: #fff;
+        font-family: "DM Serif Display", serif;
+        font-size: 2.4rem;
+      }
+      .result-answer .answer-meta {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.82rem;
+        margin-top: 6px;
+      }
 
-  /* ─── Polynomial equation ─── */
-  .equation-box {
-    background: var(--bg);
-    box-shadow: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
-    border-radius: var(--radius-sm); padding: 16px 18px;
-    font-size: 0.9rem; color: var(--accent);
-    font-weight: 500; line-height: 1.7; word-break: break-word;
-    margin-bottom: 16px; font-family: 'Courier New', monospace;
-  }
+      /* ─── Polynomial equation ─── */
+      .equation-box {
+        background: var(--bg);
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        font-size: 0.9rem;
+        color: var(--accent);
+        font-weight: 500;
+        line-height: 1.7;
+        word-break: break-word;
+        margin-bottom: 16px;
+        font-family: "Courier New", monospace;
+      }
 
-  /* ─── Steps ─── */
-  .steps-list { list-style: none; }
-  .step-item {
-    position: relative; padding: 14px 16px 14px 44px;
-    background: var(--surface);
-    border-radius: var(--radius-xs); margin-bottom: 10px;
-    box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
-    font-size: 0.84rem; line-height: 1.6; color: var(--text-secondary);
-  }
-  .step-item .step-num {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--accent-soft); color: var(--accent);
-    font-size: 0.72rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step-item strong { color: var(--text-primary); font-weight: 600; }
-  .step-item code {
-    background: var(--accent-soft); color: var(--accent);
-    padding: 1px 6px; border-radius: 4px;
-    font-family: 'Courier New', monospace; font-size: 0.82rem;
-  }
+      /* ─── Steps ─── */
+      .steps-list {
+        list-style: none;
+      }
+      .step-item {
+        position: relative;
+        padding: 14px 16px 14px 44px;
+        background: var(--surface);
+        border-radius: var(--radius-xs);
+        margin-bottom: 10px;
+        box-shadow:
+          3px 3px 8px var(--shadow-dark),
+          -3px -3px 8px var(--shadow-light);
+        font-size: 0.84rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+      }
+      .step-item .step-num {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .step-item strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .step-item code {
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.82rem;
+      }
 
-  /* ─── Chart ─── */
-  .chart-wrapper {
-    background: var(--bg);
-    box-shadow: inset 4px 4px 12px var(--shadow-dark), inset -4px -4px 12px var(--shadow-light);
-    border-radius: var(--radius-sm); padding: 20px;
-  }
+      /* ─── Chart ─── */
+      .chart-wrapper {
+        background: var(--bg);
+        box-shadow:
+          inset 4px 4px 12px var(--shadow-dark),
+          inset -4px -4px 12px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+      }
 
-  /* ─── Divider ─── */
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+      /* ─── Divider ─── */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+      }
 
-  /* ─── Badge ─── */
-  .badge {
-    display: inline-block; padding: 2px 9px; border-radius: 20px;
-    font-size: 0.72rem; font-weight: 600; margin-left: 8px;
-    background: var(--accent-soft); color: var(--accent); vertical-align: middle;
-  }
+      /* ─── Badge ─── */
+      .badge {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-left: 8px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        vertical-align: middle;
+      }
 
-  /* ─── Responsive ─── */
-  @media (min-width: 640px) {
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  }
+      /* ─── Responsive ─── */
+      @media (min-width: 640px) {
+        .two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+      }
 
-  /* ─── Animations ─── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .fade-up { animation: fadeUp 0.35s ease both; }
-</style>
-</head>
-<body>
-<div class="wrapper">
+      /* ─── Animations ─── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.35s ease both;
+      }
+    </style>
+  </head>
 
-  <!-- Header -->
-  <div class="header fade-up">
-    <h1>Interpolasi <span>Polinom</span></h1>
-    <p>Metode numerik untuk menghitung nilai fungsi dari titik-titik diskrit</p>
-  </div>
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker Registered'));
+}
+</script>
 
-  <div class="two-col">
-
-    <!-- LEFT COLUMN -->
-    <div>
-
-      <!-- Method -->
-      <div class="card fade-up" style="animation-delay:.05s">
-        <div class="card-title"><span class="icon">🔢</span> Metode Interpolasi</div>
-        <div class="method-toggle">
-          <button class="method-btn active" id="btn-linear" onclick="setMethod('linear')">
-            <span class="method-label">Interpolasi Linear</span>
-            <span class="method-sub">Butuh 2 titik data</span>
-          </button>
-          <button class="method-btn" id="btn-quadratic" onclick="setMethod('quadratic')">
-            <span class="method-label">Interpolasi Kuadratik</span>
-            <span class="method-sub">Butuh 3 titik data</span>
-          </button>
-        </div>
+  <body>
+    <div class="wrapper">
+      <!-- Header -->
+      <div class="header fade-up">
+        <h1>Interpolasi <span>Polinom</span></h1>
+        <p>
+          Metode numerik untuk menghitung nilai fungsi dari titik-titik diskrit
+        </p>
       </div>
 
-      <!-- Data Points -->
-      <div class="card fade-up" style="animation-delay:.1s">
-        <div class="card-title">
-          <span class="icon">📍</span>
-          Titik Data
-          <span class="badge" id="point-count">2 titik</span>
-        </div>
-
-        <div class="points-header">
-          <span>x</span><span>y = f(x)</span><span></span>
-        </div>
-        <div id="points-container"></div>
-        <button class="add-btn" onclick="addPoint()">+ Tambah Titik</button>
-      </div>
-
-      <!-- X Target -->
-      <div class="card fade-up" style="animation-delay:.15s">
-        <div class="card-title"><span class="icon">🎯</span> Nilai x yang Dicari</div>
-        <div class="x-target-row">
-          <span class="x-label">x target =</span>
-          <input type="number" id="x-target" class="point-input" placeholder="misal: 9.2" step="any"/>
-        </div>
-      </div>
-
-      <!-- Calculate -->
-      <div class="fade-up" style="animation-delay:.2s">
-        <button class="calc-btn" onclick="calculate()">Hitung Interpolasi</button>
-        <div class="error-msg" id="error-msg">⚠ <span id="error-text"></span></div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div>
-
-      <!-- Result -->
-      <div class="result-section" id="result-section">
-
-        <div class="card fade-up">
-          <div class="result-answer" id="result-answer">
-            <div class="answer-label">Nilai Interpolasi</div>
-            <div class="answer-value" id="answer-value">—</div>
-            <div class="answer-meta" id="answer-meta"></div>
+      <div class="two-col">
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Method -->
+          <div class="card fade-up" style="animation-delay: 0.05s">
+            <div class="card-title">
+              <span class="icon">🔢</span> Metode Interpolasi
+            </div>
+            <div class="method-toggle">
+              <button
+                class="method-btn active"
+                id="btn-linear"
+                onclick="setMethod('linear')"
+              >
+                <span class="method-label">Interpolasi Linear</span>
+                <span class="method-sub">Butuh 2 titik data</span>
+              </button>
+              <button
+                class="method-btn"
+                id="btn-quadratic"
+                onclick="setMethod('quadratic')"
+              >
+                <span class="method-label">Interpolasi Kuadratik</span>
+                <span class="method-sub">Butuh 3 titik data</span>
+              </button>
+            </div>
           </div>
 
-          <div class="card-title"><span class="icon">📐</span> Persamaan Polinom</div>
-          <div class="equation-box" id="equation-box"></div>
+          <!-- Data Points -->
+          <div class="card fade-up" style="animation-delay: 0.1s">
+            <div class="card-title">
+              <span class="icon">📍</span>
+              Titik Data
+              <span class="badge" id="point-count">2 titik</span>
+            </div>
 
-          <div class="divider"></div>
+            <div class="points-header">
+              <span>x</span><span>y = f(x)</span><span></span>
+            </div>
+            <div id="points-container"></div>
+            <button class="add-btn" onclick="addPoint()">+ Tambah Titik</button>
+          </div>
 
-          <div class="card-title"><span class="icon">📋</span> Langkah Perhitungan</div>
-          <ul class="steps-list" id="steps-list"></ul>
-        </div>
+          <!-- X Target -->
+          <div class="card fade-up" style="animation-delay: 0.15s">
+            <div class="card-title">
+              <span class="icon">🎯</span> Nilai x yang Dicari
+            </div>
+            <div class="x-target-row">
+              <span class="x-label">x target =</span>
+              <input
+                type="number"
+                id="x-target"
+                class="point-input"
+                placeholder="misal: 9.2"
+                step="any"
+              />
+            </div>
+          </div>
 
-        <!-- Chart -->
-        <div class="card fade-up" style="animation-delay:.05s">
-          <div class="card-title"><span class="icon">📈</span> Grafik Interpolasi</div>
-          <div class="chart-wrapper">
-            <canvas id="interp-chart" height="220"></canvas>
+          <!-- Calculate -->
+          <div class="fade-up" style="animation-delay: 0.2s">
+            <button class="calc-btn" onclick="calculate()">
+              Hitung Interpolasi
+            </button>
+            <div class="error-msg" id="error-msg">
+              ⚠ <span id="error-text"></span>
+            </div>
           </div>
         </div>
 
-      </div>
+        <!-- RIGHT COLUMN -->
+        <div>
+          <!-- Result -->
+          <div class="result-section" id="result-section">
+            <div class="card fade-up">
+              <div class="result-answer" id="result-answer">
+                <div class="answer-label">Nilai Interpolasi</div>
+                <div class="answer-value" id="answer-value">—</div>
+                <div class="answer-meta" id="answer-meta"></div>
+              </div>
 
-      <!-- Placeholder -->
-      <div id="result-placeholder" class="card fade-up" style="animation-delay:.15s; text-align:center; padding:50px 20px;">
-        <div style="font-size:3rem; margin-bottom:14px;">🧮</div>
-        <div style="font-family:'DM Serif Display',serif; font-size:1.1rem; color:var(--text-primary); margin-bottom:8px;">Siap Berhitung</div>
-        <div style="color:var(--text-muted); font-size:0.84rem; line-height:1.6;">Masukkan titik data dan nilai x yang ingin dicari, kemudian tekan tombol <strong>Hitung Interpolasi</strong>.</div>
-      </div>
+              <div class="card-title">
+                <span class="icon">📐</span> Persamaan Polinom
+              </div>
+              <div class="equation-box" id="equation-box"></div>
 
+              <div class="divider"></div>
+
+              <div class="card-title">
+                <span class="icon">📋</span> Langkah Perhitungan
+              </div>
+              <ul class="steps-list" id="steps-list"></ul>
+            </div>
+
+            <!-- Chart -->
+            <div class="card fade-up" style="animation-delay: 0.05s">
+              <div class="card-title">
+                <span class="icon">📈</span> Grafik Interpolasi
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="interp-chart" height="220"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Placeholder -->
+          <div
+            id="result-placeholder"
+            class="card fade-up"
+            style="
+              animation-delay: 0.15s;
+              text-align: center;
+              padding: 50px 20px;
+            "
+          >
+            <div style="font-size: 3rem; margin-bottom: 14px">🧮</div>
+            <div
+              style="
+                font-family: &quot;DM Serif Display&quot;, serif;
+                font-size: 1.1rem;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+              "
+            >
+              Siap Berhitung
+            </div>
+            <div
+              style="
+                color: var(--text-muted);
+                font-size: 0.84rem;
+                line-height: 1.6;
+              "
+            >
+              Masukkan titik data dan nilai x yang ingin dicari, kemudian tekan
+              tombol <strong>Hitung Interpolasi</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-</div>
+    <script>
+      // ─── State ───────────────────────────────────────────────
+      let method = "linear";
+      let minPoints = 2;
+      let chartInstance = null;
 
-<script>
-// ─── State ───────────────────────────────────────────────
-let method = 'linear';
-let minPoints = 2;
-let chartInstance = null;
+      // ─── Init ─────────────────────────────────────────────────
+      function init() {
+        document.getElementById("points-container").innerHTML = "";
+        for (let i = 0; i < minPoints; i++) addPoint();
+      }
 
-// ─── Init ─────────────────────────────────────────────────
-function init() {
-  document.getElementById('points-container').innerHTML = '';
-  for (let i = 0; i < minPoints; i++) addPoint();
-}
+      function setMethod(m) {
+        method = m;
+        minPoints = m === "linear" ? 2 : 3;
+        document
+          .getElementById("btn-linear")
+          .classList.toggle("active", m === "linear");
+        document
+          .getElementById("btn-quadratic")
+          .classList.toggle("active", m === "quadratic");
+        init();
+        hideResult();
+      }
 
-function setMethod(m) {
-  method = m;
-  minPoints = m === 'linear' ? 2 : 3;
-  document.getElementById('btn-linear').classList.toggle('active', m === 'linear');
-  document.getElementById('btn-quadratic').classList.toggle('active', m === 'quadratic');
-  init();
-  hideResult();
-}
-
-// ─── Point rows ────────────────────────────────────────────
-function addPoint() {
-  const container = document.getElementById('points-container');
-  const idx = container.children.length;
-  const row = document.createElement('div');
-  row.className = 'point-row';
-  row.innerHTML = `
+      // ─── Point rows ────────────────────────────────────────────
+      function addPoint() {
+        const container = document.getElementById("points-container");
+        const idx = container.children.length;
+        const row = document.createElement("div");
+        row.className = "point-row";
+        row.innerHTML = `
     <input type="number" class="point-input px" placeholder="x${idx}" step="any"/>
     <input type="number" class="point-input py" placeholder="f(x${idx})" step="any"/>
     <button class="delete-btn" onclick="removePoint(this)" title="Hapus">✕</button>`;
-  container.appendChild(row);
-  updatePointCount();
-}
-
-function removePoint(btn) {
-  const rows = document.querySelectorAll('.point-row');
-  if (rows.length <= minPoints) {
-    showError(`Minimal ${minPoints} titik diperlukan untuk metode ${method === 'linear' ? 'linear' : 'kuadratik'}.`);
-    return;
-  }
-  btn.closest('.point-row').remove();
-  updatePointCount();
-}
-
-function updatePointCount() {
-  const n = document.querySelectorAll('.point-row').length;
-  document.getElementById('point-count').textContent = `${n} titik`;
-}
-
-// ─── Data collection ───────────────────────────────────────
-function getPoints() {
-  const rows = document.querySelectorAll('.point-row');
-  const pts = [];
-  for (const row of rows) {
-    const x = parseFloat(row.querySelector('.px').value);
-    const y = parseFloat(row.querySelector('.py').value);
-    if (isNaN(x) || isNaN(y)) return null;
-    pts.push({ x, y });
-  }
-  return pts;
-}
-
-// ─── Validation ────────────────────────────────────────────
-function validate(pts, xTarget) {
-  if (!pts) return 'Semua nilai x dan f(x) harus diisi.';
-  if (pts.length < minPoints) return `Minimal ${minPoints} titik diperlukan.`;
-  if (isNaN(xTarget)) return 'Nilai x yang dicari harus diisi.';
-  const xs = pts.map(p => p.x);
-  const unique = new Set(xs);
-  if (unique.size !== xs.length) return 'Nilai x tidak boleh ada yang sama.';
-  if (method === 'linear' && pts.length > 2) {
-    /* allow extra points but only use nearest 2 */
-  }
-  return null;
-}
-
-// ─── Calculation: Linear ───────────────────────────────────
-function linearInterp(pts, xTarget) {
-  // Use 2 nearest points
-  const sorted = [...pts].sort((a, b) => a.x - b.x);
-  let p0 = sorted[0], p1 = sorted[sorted.length - 1];
-  // Find closest pair straddling xTarget if possible
-  for (let i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i].x <= xTarget && sorted[i+1].x >= xTarget) {
-      p0 = sorted[i]; p1 = sorted[i+1]; break;
-    }
-  }
-  // If not straddling, pick closest 2
-  if (pts.length === 2) { p0 = sorted[0]; p1 = sorted[1]; }
-
-  const x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y;
-  const a1 = (y1 - y0) / (x1 - x0);
-  const a0 = y0 - a1 * x0;
-  const yResult = a0 + a1 * xTarget;
-
-  const sign = (v) => v < 0 ? `${fmt(v)}` : `+ ${fmt(v)}`;
-  const equation = `p₁(x) = ${fmt(a0)} ${sign(a1)}·x`;
-
-  const steps = [
-    `Dipilih dua titik: <strong>(${fmt(x0)}, ${fmt(y0)})</strong> dan <strong>(${fmt(x1)}, ${fmt(y1)})</strong>`,
-    `Hitung kemiringan (a₁):<br><code>a₁ = (y₁ − y₀) / (x₁ − x₀) = (${fmt(y1)} − ${fmt(y0)}) / (${fmt(x1)} − ${fmt(x0)}) = ${fmt(a1)}</code>`,
-    `Hitung konstanta (a₀):<br><code>a₀ = y₀ − a₁·x₀ = ${fmt(y0)} − ${fmt(a1)}·${fmt(x0)} = ${fmt(a0)}</code>`,
-    `Polinom lanjar: <code>p₁(x) = ${fmt(a0)} ${sign(a1)}·x</code>`,
-    `Substitusi x = ${fmt(xTarget)}:<br><code>p₁(${fmt(xTarget)}) = ${fmt(a0)} + ${fmt(a1)}·${fmt(xTarget)} = ${fmt(yResult)}</code>`
-  ];
-
-  return { yResult, equation, steps, coeff: [a0, a1], usedPts: [p0, p1] };
-}
-
-// ─── Calculation: Quadratic ────────────────────────────────
-function quadraticInterp(pts, xTarget) {
-  // Use 3 best points (nearest to xTarget)
-  const sorted = [...pts].sort((a, b) => Math.abs(a.x - xTarget) - Math.abs(b.x - xTarget));
-  const [p0, p1, p2] = sorted.slice(0, 3).sort((a, b) => a.x - b.x);
-  const x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
-
-  // Build and solve 3×3 system via Gaussian elimination
-  let A = [
-    [1, x0, x0*x0, y0],
-    [1, x1, x1*x1, y1],
-    [1, x2, x2*x2, y2]
-  ];
-
-  // Forward elimination
-  for (let col = 0; col < 3; col++) {
-    for (let row = col + 1; row < 3; row++) {
-      const factor = A[row][col] / A[col][col];
-      for (let k = col; k <= 3; k++) A[row][k] -= factor * A[col][k];
-    }
-  }
-  // Back-substitution
-  const coeff = new Array(3).fill(0);
-  for (let i = 2; i >= 0; i--) {
-    coeff[i] = A[i][3];
-    for (let j = i + 1; j < 3; j++) coeff[i] -= A[i][j] * coeff[j];
-    coeff[i] /= A[i][i];
-  }
-  const [a0, a1, a2] = coeff;
-  const yResult = a0 + a1*xTarget + a2*xTarget*xTarget;
-
-  const signStr = (v) => v < 0 ? `− ${fmt(Math.abs(v))}` : `+ ${fmt(v)}`;
-  const equation = `p₂(x) = ${fmt(a0)} ${signStr(a1)}·x ${signStr(a2)}·x²`;
-
-  const det = (x0*x0*(x1-x2) - x0*(x1*x1-x2*x2) + (x1*x1*x2 - x1*x2*x2));
-
-  const steps = [
-    `Dipilih tiga titik: <strong>(${fmt(x0)},${fmt(y0)})</strong>, <strong>(${fmt(x1)},${fmt(y1)})</strong>, <strong>(${fmt(x2)},${fmt(y2)})</strong>`,
-    `Susun sistem persamaan liniar (SPL):<br>
-     <code>a₀ + ${fmt(x0)}a₁ + ${fmt(x0*x0)}a₂ = ${fmt(y0)}</code><br>
-     <code>a₀ + ${fmt(x1)}a₁ + ${fmt(x1*x1)}a₂ = ${fmt(y1)}</code><br>
-     <code>a₀ + ${fmt(x2)}a₁ + ${fmt(x2*x2)}a₂ = ${fmt(y2)}</code>`,
-    `Selesaikan SPL dengan Eliminasi Gauss:<br><code>a₀ = ${fmt(a0)}, a₁ = ${fmt(a1)}, a₂ = ${fmt(a2)}</code>`,
-    `Polinom kuadratik: <code>p₂(x) = ${fmt(a0)} ${signStr(a1)}·x ${signStr(a2)}·x²</code>`,
-    `Substitusi x = ${fmt(xTarget)}:<br><code>p₂(${fmt(xTarget)}) = ${fmt(a0)} + ${fmt(a1)}·${fmt(xTarget)} + ${fmt(a2)}·${fmt(xTarget)}² = ${fmt(yResult)}</code>`
-  ];
-
-  return { yResult, equation, steps, coeff: [a0, a1, a2], usedPts: [p0, p1, p2] };
-}
-
-// ─── Main calculate ────────────────────────────────────────
-function calculate() {
-  clearError();
-  const pts = getPoints();
-  const xTarget = parseFloat(document.getElementById('x-target').value);
-  const err = validate(pts, xTarget);
-  if (err) { showError(err); return; }
-
-  let result;
-  try {
-    result = method === 'linear' ? linearInterp(pts, xTarget) : quadraticInterp(pts, xTarget);
-  } catch (e) {
-    showError('Terjadi kesalahan dalam perhitungan. Periksa kembali titik data Anda.'); return;
-  }
-
-  showResult(result, pts, xTarget);
-}
-
-// ─── Display ───────────────────────────────────────────────
-function showResult(result, allPts, xTarget) {
-  document.getElementById('result-placeholder').style.display = 'none';
-  const section = document.getElementById('result-section');
-  section.classList.add('show');
-
-  document.getElementById('answer-value').textContent = fmt(result.yResult);
-  document.getElementById('answer-meta').textContent =
-    `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)}  •  ${method === 'linear' ? 'Interpolasi Linear' : 'Interpolasi Kuadratik'}`;
-
-  document.getElementById('equation-box').innerHTML = result.equation;
-
-  const list = document.getElementById('steps-list');
-  list.innerHTML = result.steps.map((s, i) => `
-    <li class="step-item"><span class="step-num">${i+1}</span>${s}</li>`).join('');
-
-  drawChart(allPts, result, xTarget);
-
-  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function hideResult() {
-  document.getElementById('result-section').classList.remove('show');
-  document.getElementById('result-placeholder').style.display = '';
-}
-
-// ─── Chart ─────────────────────────────────────────────────
-function drawChart(allPts, result, xTarget) {
-  const ctx = document.getElementById('interp-chart').getContext('2d');
-  if (chartInstance) chartInstance.destroy();
-
-  const sorted = [...allPts].sort((a, b) => a.x - b.x);
-  const xMin = sorted[0].x;
-  const xMax = sorted[sorted.length - 1].x;
-  const range = xMax - xMin || 1;
-  const pad = range * 0.25;
-
-  const polyX = [];
-  const polyY = [];
-  const steps = 120;
-  for (let i = 0; i <= steps; i++) {
-    const x = (xMin - pad) + (range + 2*pad) * i / steps;
-    polyX.push(x);
-    if (method === 'linear') {
-      const [a0, a1] = result.coeff;
-      polyY.push(a0 + a1*x);
-    } else {
-      const [a0, a1, a2] = result.coeff;
-      polyY.push(a0 + a1*x + a2*x*x);
-    }
-  }
-
-  const lineData = polyX.map((x, i) => ({ x, y: polyY[i] }));
-  const ptData = allPts.map(p => ({ x: p.x, y: p.y }));
-  const target = [{ x: xTarget, y: result.yResult }];
-
-  chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [
-        {
-          label: 'Polinom Interpolasi',
-          data: lineData,
-          type: 'line',
-          borderColor: '#5c5ba8',
-          backgroundColor: 'transparent',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          tension: 0.4,
-          order: 3
-        },
-        {
-          label: 'Titik Data',
-          data: ptData,
-          backgroundColor: '#7c7bd4',
-          borderColor: '#fff',
-          borderWidth: 2,
-          pointRadius: 7,
-          pointHoverRadius: 9,
-          order: 2
-        },
-        {
-          label: `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)}`,
-          data: target,
-          backgroundColor: '#f4836a',
-          borderColor: '#fff',
-          borderWidth: 2.5,
-          pointRadius: 9,
-          pointStyle: 'star',
-          order: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: {
-          labels: {
-            font: { family: 'DM Sans', size: 11 },
-            color: '#7070a8', usePointStyle: true, boxWidth: 10
-          }
-        },
-        tooltip: {
-          backgroundColor: '#ededfb',
-          borderColor: 'rgba(92,91,168,0.2)',
-          borderWidth: 1,
-          titleColor: '#3a3a6e',
-          bodyColor: '#7070a8',
-          callbacks: {
-            label: ctx => `(${fmt(ctx.parsed.x)}, ${fmt(ctx.parsed.y)})`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(160,160,200,0.15)' },
-          ticks: { color: '#9898c0', font: { family: 'DM Sans', size: 10 } }
-        },
-        y: {
-          grid: { color: 'rgba(160,160,200,0.15)' },
-          ticks: { color: '#9898c0', font: { family: 'DM Sans', size: 10 } }
-        }
+        container.appendChild(row);
+        updatePointCount();
       }
-    }
-  });
-}
 
-// ─── Utils ─────────────────────────────────────────────────
-function fmt(v) {
-  if (isNaN(v)) return '?';
-  if (Number.isInteger(v)) return v.toString();
-  return parseFloat(v.toFixed(6)).toString();
-}
+      function removePoint(btn) {
+        const rows = document.querySelectorAll(".point-row");
+        if (rows.length <= minPoints) {
+          showError(
+            `Minimal ${minPoints} titik diperlukan untuk metode ${method === "linear" ? "linear" : "kuadratik"}.`,
+          );
+          return;
+        }
+        btn.closest(".point-row").remove();
+        updatePointCount();
+      }
 
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  document.getElementById('error-text').textContent = msg;
-  el.classList.add('show');
-}
-function clearError() {
-  document.getElementById('error-msg').classList.remove('show');
-}
+      function updatePointCount() {
+        const n = document.querySelectorAll(".point-row").length;
+        document.getElementById("point-count").textContent = `${n} titik`;
+      }
 
-// ─── Boot ─────────────────────────────────────────────────
-init();
-</script>
-</body>
+      // ─── Data collection ───────────────────────────────────────
+      function getPoints() {
+        const rows = document.querySelectorAll(".point-row");
+        const pts = [];
+        for (const row of rows) {
+          const x = parseFloat(row.querySelector(".px").value);
+          const y = parseFloat(row.querySelector(".py").value);
+          if (isNaN(x) || isNaN(y)) return null;
+          pts.push({ x, y });
+        }
+        return pts;
+      }
+
+      // ─── Validation ────────────────────────────────────────────
+      function validate(pts, xTarget) {
+        if (!pts) return "Semua nilai x dan f(x) harus diisi.";
+        if (pts.length < minPoints)
+          return `Minimal ${minPoints} titik diperlukan.`;
+        if (isNaN(xTarget)) return "Nilai x yang dicari harus diisi.";
+        const xs = pts.map((p) => p.x);
+        const unique = new Set(xs);
+        if (unique.size !== xs.length)
+          return "Nilai x tidak boleh ada yang sama.";
+        if (method === "linear" && pts.length > 2) {
+          /* allow extra points but only use nearest 2 */
+        }
+        return null;
+      }
+
+      // ─── Calculation: Linear ───────────────────────────────────
+      function linearInterp(pts, xTarget) {
+        // Use 2 nearest points
+        const sorted = [...pts].sort((a, b) => a.x - b.x);
+        let p0 = sorted[0],
+          p1 = sorted[sorted.length - 1];
+        // Find closest pair straddling xTarget if possible
+        for (let i = 0; i < sorted.length - 1; i++) {
+          if (sorted[i].x <= xTarget && sorted[i + 1].x >= xTarget) {
+            p0 = sorted[i];
+            p1 = sorted[i + 1];
+            break;
+          }
+        }
+        // If not straddling, pick closest 2
+        if (pts.length === 2) {
+          p0 = sorted[0];
+          p1 = sorted[1];
+        }
+
+        const x0 = p0.x,
+          y0 = p0.y,
+          x1 = p1.x,
+          y1 = p1.y;
+        const a1 = (y1 - y0) / (x1 - x0);
+        const a0 = y0 - a1 * x0;
+        const yResult = a0 + a1 * xTarget;
+
+        const sign = (v) => (v < 0 ? `${fmt(v)}` : `+ ${fmt(v)}`);
+        const equation = `p₁(x) = ${fmt(a0)} ${sign(a1)}·x`;
+
+        const steps = [
+          `Dipilih dua titik: <strong>(${fmt(x0)}, ${fmt(y0)})</strong> dan <strong>(${fmt(x1)}, ${fmt(y1)})</strong>`,
+          `Hitung kemiringan (a₁):<br><code>a₁ = (y₁ − y₀) / (x₁ − x₀) = (${fmt(y1)} − ${fmt(y0)}) / (${fmt(x1)} − ${fmt(x0)}) = ${fmt(a1)}</code>`,
+          `Hitung konstanta (a₀):<br><code>a₀ = y₀ − a₁·x₀ = ${fmt(y0)} − ${fmt(a1)}·${fmt(x0)} = ${fmt(a0)}</code>`,
+          `Polinom lanjar: <code>p₁(x) = ${fmt(a0)} ${sign(a1)}·x</code>`,
+          `Substitusi x = ${fmt(xTarget)}:<br><code>p₁(${fmt(xTarget)}) = ${fmt(a0)} + ${fmt(a1)}·${fmt(xTarget)} = ${fmt(yResult)}</code>`,
+        ];
+
+        return { yResult, equation, steps, coeff: [a0, a1], usedPts: [p0, p1] };
+      }
+
+      // ─── Calculation: Quadratic ────────────────────────────────
+      function quadraticInterp(pts, xTarget) {
+        // Use 3 best points (nearest to xTarget)
+        const sorted = [...pts].sort(
+          (a, b) => Math.abs(a.x - xTarget) - Math.abs(b.x - xTarget),
+        );
+        const [p0, p1, p2] = sorted.slice(0, 3).sort((a, b) => a.x - b.x);
+        const x0 = p0.x,
+          y0 = p0.y,
+          x1 = p1.x,
+          y1 = p1.y,
+          x2 = p2.x,
+          y2 = p2.y;
+
+        // Build and solve 3×3 system via Gaussian elimination
+        let A = [
+          [1, x0, x0 * x0, y0],
+          [1, x1, x1 * x1, y1],
+          [1, x2, x2 * x2, y2],
+        ];
+
+        // Forward elimination
+        for (let col = 0; col < 3; col++) {
+          for (let row = col + 1; row < 3; row++) {
+            const factor = A[row][col] / A[col][col];
+            for (let k = col; k <= 3; k++) A[row][k] -= factor * A[col][k];
+          }
+        }
+        // Back-substitution
+        const coeff = new Array(3).fill(0);
+        for (let i = 2; i >= 0; i--) {
+          coeff[i] = A[i][3];
+          for (let j = i + 1; j < 3; j++) coeff[i] -= A[i][j] * coeff[j];
+          coeff[i] /= A[i][i];
+        }
+        const [a0, a1, a2] = coeff;
+        const yResult = a0 + a1 * xTarget + a2 * xTarget * xTarget;
+
+        const signStr = (v) =>
+          v < 0 ? `− ${fmt(Math.abs(v))}` : `+ ${fmt(v)}`;
+        const equation = `p₂(x) = ${fmt(a0)} ${signStr(a1)}·x ${signStr(a2)}·x²`;
+
+        const det =
+          x0 * x0 * (x1 - x2) -
+          x0 * (x1 * x1 - x2 * x2) +
+          (x1 * x1 * x2 - x1 * x2 * x2);
+
+        const steps = [
+          `Dipilih tiga titik: <strong>(${fmt(x0)},${fmt(y0)})</strong>, <strong>(${fmt(x1)},${fmt(y1)})</strong>, <strong>(${fmt(x2)},${fmt(y2)})</strong>`,
+          `Susun sistem persamaan liniar (SPL):<br>
+     <code>a₀ + ${fmt(x0)}a₁ + ${fmt(x0 * x0)}a₂ = ${fmt(y0)}</code><br>
+     <code>a₀ + ${fmt(x1)}a₁ + ${fmt(x1 * x1)}a₂ = ${fmt(y1)}</code><br>
+     <code>a₀ + ${fmt(x2)}a₁ + ${fmt(x2 * x2)}a₂ = ${fmt(y2)}</code>`,
+          `Selesaikan SPL dengan Eliminasi Gauss:<br><code>a₀ = ${fmt(a0)}, a₁ = ${fmt(a1)}, a₂ = ${fmt(a2)}</code>`,
+          `Polinom kuadratik: <code>p₂(x) = ${fmt(a0)} ${signStr(a1)}·x ${signStr(a2)}·x²</code>`,
+          `Substitusi x = ${fmt(xTarget)}:<br><code>p₂(${fmt(xTarget)}) = ${fmt(a0)} + ${fmt(a1)}·${fmt(xTarget)} + ${fmt(a2)}·${fmt(xTarget)}² = ${fmt(yResult)}</code>`,
+        ];
+
+        return {
+          yResult,
+          equation,
+          steps,
+          coeff: [a0, a1, a2],
+          usedPts: [p0, p1, p2],
+        };
+      }
+
+      // ─── Main calculate ────────────────────────────────────────
+      function calculate() {
+        clearError();
+        const pts = getPoints();
+        const xTarget = parseFloat(document.getElementById("x-target").value);
+        const err = validate(pts, xTarget);
+        if (err) {
+          showError(err);
+          return;
+        }
+
+        let result;
+        try {
+          result =
+            method === "linear"
+              ? linearInterp(pts, xTarget)
+              : quadraticInterp(pts, xTarget);
+        } catch (e) {
+          showError(
+            "Terjadi kesalahan dalam perhitungan. Periksa kembali titik data Anda.",
+          );
+          return;
+        }
+
+        showResult(result, pts, xTarget);
+      }
+
+      // ─── Display ───────────────────────────────────────────────
+      function showResult(result, allPts, xTarget) {
+        document.getElementById("result-placeholder").style.display = "none";
+        const section = document.getElementById("result-section");
+        section.classList.add("show");
+
+        document.getElementById("answer-value").textContent = fmt(
+          result.yResult,
+        );
+        document.getElementById("answer-meta").textContent =
+          `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)}  •  ${method === "linear" ? "Interpolasi Linear" : "Interpolasi Kuadratik"}`;
+
+        document.getElementById("equation-box").innerHTML = result.equation;
+
+        const list = document.getElementById("steps-list");
+        list.innerHTML = result.steps
+          .map(
+            (s, i) => `
+    <li class="step-item"><span class="step-num">${i + 1}</span>${s}</li>`,
+          )
+          .join("");
+
+        drawChart(allPts, result, xTarget);
+
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function hideResult() {
+        document.getElementById("result-section").classList.remove("show");
+        document.getElementById("result-placeholder").style.display = "";
+      }
+
+      // ─── Chart ─────────────────────────────────────────────────
+      function drawChart(allPts, result, xTarget) {
+        const ctx = document.getElementById("interp-chart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+
+        const sorted = [...allPts].sort((a, b) => a.x - b.x);
+        const xMin = sorted[0].x;
+        const xMax = sorted[sorted.length - 1].x;
+        const range = xMax - xMin || 1;
+        const pad = range * 0.25;
+
+        const polyX = [];
+        const polyY = [];
+        const steps = 120;
+        for (let i = 0; i <= steps; i++) {
+          const x = xMin - pad + ((range + 2 * pad) * i) / steps;
+          polyX.push(x);
+          if (method === "linear") {
+            const [a0, a1] = result.coeff;
+            polyY.push(a0 + a1 * x);
+          } else {
+            const [a0, a1, a2] = result.coeff;
+            polyY.push(a0 + a1 * x + a2 * x * x);
+          }
+        }
+
+        const lineData = polyX.map((x, i) => ({ x, y: polyY[i] }));
+        const ptData = allPts.map((p) => ({ x: p.x, y: p.y }));
+        const target = [{ x: xTarget, y: result.yResult }];
+
+        chartInstance = new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Polinom Interpolasi",
+                data: lineData,
+                type: "line",
+                borderColor: "#5c5ba8",
+                backgroundColor: "transparent",
+                borderWidth: 2.5,
+                pointRadius: 0,
+                tension: 0.4,
+                order: 3,
+              },
+              {
+                label: "Titik Data",
+                data: ptData,
+                backgroundColor: "#7c7bd4",
+                borderColor: "#fff",
+                borderWidth: 2,
+                pointRadius: 7,
+                pointHoverRadius: 9,
+                order: 2,
+              },
+              {
+                label: `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)}`,
+                data: target,
+                backgroundColor: "#f4836a",
+                borderColor: "#fff",
+                borderWidth: 2.5,
+                pointRadius: 9,
+                pointStyle: "star",
+                order: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            interaction: { mode: "nearest", intersect: false },
+            plugins: {
+              legend: {
+                labels: {
+                  font: { family: "DM Sans", size: 11 },
+                  color: "#7070a8",
+                  usePointStyle: true,
+                  boxWidth: 10,
+                },
+              },
+              tooltip: {
+                backgroundColor: "#ededfb",
+                borderColor: "rgba(92,91,168,0.2)",
+                borderWidth: 1,
+                titleColor: "#3a3a6e",
+                bodyColor: "#7070a8",
+                callbacks: {
+                  label: (ctx) =>
+                    `(${fmt(ctx.parsed.x)}, ${fmt(ctx.parsed.y)})`,
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { color: "rgba(160,160,200,0.15)" },
+                ticks: {
+                  color: "#9898c0",
+                  font: { family: "DM Sans", size: 10 },
+                },
+              },
+              y: {
+                grid: { color: "rgba(160,160,200,0.15)" },
+                ticks: {
+                  color: "#9898c0",
+                  font: { family: "DM Sans", size: 10 },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ─── Utils ─────────────────────────────────────────────────
+      function fmt(v) {
+        if (isNaN(v)) return "?";
+        if (Number.isInteger(v)) return v.toString();
+        return parseFloat(v.toFixed(6)).toString();
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error-msg");
+        document.getElementById("error-text").textContent = msg;
+        el.classList.add("show");
+      }
+      function clearError() {
+        document.getElementById("error-msg").classList.remove("show");
+      }
+
+      // ─── Boot ─────────────────────────────────────────────────
+      init();
+    </script>
+  </body>
 </html>
