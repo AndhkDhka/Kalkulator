@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#5c5ba8" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Interpolasi Polinom</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      :root {
+        --bg: #e6e6f4;
+        --surface: #eaeaf8;
+        --card: #ededfb;
+        --shadow-light: #ffffff;
+        --shadow-dark: #c8c8e0;
+        --text-primary: #3a3a6e;
+        --text-secondary: #7070a8;
+        --text-muted: #9898c0;
+        --accent: #5c5ba8;
+        --accent-soft: rgba(92, 91, 168, 0.12);
+        --coral: #f4836a;
+        --coral-soft: rgba(244, 131, 106, 0.15);
+        --success: #5ba88a;
+        --success-soft: rgba(91, 168, 138, 0.12);
+        --border: rgba(92, 91, 168, 0.12);
+        --radius: 20px;
+        --radius-sm: 14px;
+        --radius-xs: 10px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        font-family: "DM Sans", sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 40px 20px 60px;
+      }
+
+      /* ─── Neumorphic helpers ─── */
+      .neu {
+        background: var(--surface);
+        box-shadow:
+          6px 6px 14px var(--shadow-dark),
+          -6px -6px 14px var(--shadow-light);
+        border-radius: var(--radius);
+      }
+      .neu-inset {
+        background: var(--bg);
+        box-shadow:
+          inset 4px 4px 10px var(--shadow-dark),
+          inset -4px -4px 10px var(--shadow-light);
+        border-radius: var(--radius-xs);
+      }
+      .neu-btn {
+        background: var(--surface);
+        box-shadow:
+          4px 4px 10px var(--shadow-dark),
+          -4px -4px 10px var(--shadow-light);
+        border: none;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        border-radius: var(--radius-sm);
+        padding: 10px 18px;
+        transition: all 0.15s ease;
+        user-select: none;
+      }
+      .neu-btn:hover {
+        box-shadow:
+          5px 5px 12px var(--shadow-dark),
+          -5px -5px 12px var(--shadow-light);
+      }
+      .neu-btn:active {
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        transform: scale(0.98);
+      }
+
+      /* ─── Layout ─── */
+      .wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* ─── Header ─── */
+      .header {
+        text-align: center;
+        margin-bottom: 36px;
+      }
+      .header h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+      }
+      .header h1 span {
+        color: var(--accent);
+        font-style: italic;
+      }
+      .header p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-top: 6px;
+        font-weight: 300;
+      }
+
+      /* ─── Card ─── */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 28px 28px;
+        box-shadow:
+          8px 8px 20px var(--shadow-dark),
+          -8px -8px 20px var(--shadow-light);
+        margin-bottom: 20px;
+      }
+      .card-title {
+        font-family: "DM Serif Display", serif;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-title .icon {
+        width: 28px;
+        height: 28px;
+        background: var(--accent-soft);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
+
+      /* ─── Method Toggle ─── */
+      .method-toggle {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+      }
+
+      .method-btn {
+        width: 100%;
+      }
+      .method-btn-lagrange {
+        grid-column: 1 / -1;
+      }
+      .method-btn {
+        padding: 14px 10px;
+        text-align: center;
+        background: var(--surface);
+        border: none;
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        box-shadow:
+          4px 4px 10px var(--shadow-dark),
+          -4px -4px 10px var(--shadow-light);
+        transition: all 0.2s ease;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        font-weight: 400;
+      }
+      .method-btn .method-label {
+        font-weight: 600;
+        display: block;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+      }
+      .method-btn .method-sub {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+      }
+      .method-btn.active {
+        background: var(--accent);
+        color: #fff;
+        box-shadow:
+          3px 3px 10px rgba(92, 91, 168, 0.35),
+          -2px -2px 8px var(--shadow-light);
+      }
+      .method-btn.active .method-label,
+      .method-btn.active .method-sub {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      /* ─── Lagrange table ─── */
+      .lag-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+        font-size: 0.8rem;
+        margin-top: 2px;
+      }
+      .lag-table th {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+        padding: 6px 10px;
+        text-align: center;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .lag-table th:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+      .lag-table th:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+      .lag-table td {
+        background: var(--bg);
+        padding: 7px 10px;
+        text-align: center;
+        color: var(--text-secondary);
+        font-family: "Courier New", monospace;
+        font-size: 0.79rem;
+      }
+      .lag-table td:first-child {
+        border-radius: 8px 0 0 8px;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .lag-table td:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+      .lag-table td.hi {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* ─── Points Table ─── */
+      .points-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr 40px;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 0 4px;
+      }
+      .points-header span {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .point-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 40px;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .point-input {
+        background: var(--bg);
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        border: none;
+        border-radius: var(--radius-xs);
+        padding: 12px 14px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        outline: none;
+        width: 100%;
+        transition: box-shadow 0.2s;
+      }
+      .point-input:focus {
+        box-shadow:
+          inset 4px 4px 10px var(--shadow-dark),
+          inset -4px -4px 10px var(--shadow-light),
+          0 0 0 2px var(--accent);
+      }
+      .point-input::placeholder {
+        color: var(--text-muted);
+      }
+      .delete-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: var(--coral-soft);
+        color: var(--coral);
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        box-shadow:
+          2px 2px 6px var(--shadow-dark),
+          -2px -2px 6px var(--shadow-light);
+        flex-shrink: 0;
+      }
+      .delete-btn:hover {
+        background: var(--coral);
+        color: #fff;
+      }
+
+      .add-btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+        box-shadow:
+          3px 3px 8px var(--shadow-dark),
+          -3px -3px 8px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.88rem;
+        transition: all 0.15s;
+        margin-top: 4px;
+      }
+      .add-btn:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      /* ─── X Target ─── */
+      .x-target-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .x-label {
+        font-size: 0.88rem;
+        font-weight: 500;
+        white-space: nowrap;
+        color: var(--text-secondary);
+      }
+
+      /* ─── Calculate Button ─── */
+      .calc-btn {
+        width: 100%;
+        padding: 16px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: "DM Serif Display", serif;
+        font-size: 1.1rem;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        box-shadow:
+          5px 5px 14px rgba(92, 91, 168, 0.4),
+          -4px -4px 10px var(--shadow-light);
+        transition: all 0.2s;
+      }
+      .calc-btn:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          7px 7px 18px rgba(92, 91, 168, 0.45),
+          -4px -4px 10px var(--shadow-light);
+      }
+      .calc-btn:active {
+        transform: translateY(0);
+      }
+
+      /* ─── Error ─── */
+      .error-msg {
+        background: var(--coral-soft);
+        border: 1px solid rgba(244, 131, 106, 0.3);
+        color: var(--coral);
+        border-radius: var(--radius-xs);
+        padding: 12px 16px;
+        font-size: 0.84rem;
+        font-weight: 500;
+        display: none;
+        margin-top: 12px;
+      }
+      .error-msg.show {
+        display: block;
+      }
+
+      /* ─── Results ─── */
+      .result-section {
+        display: none;
+      }
+      .result-section.show {
+        display: block;
+      }
+
+      .result-answer {
+        text-align: center;
+        padding: 28px 20px;
+        background: linear-gradient(135deg, var(--accent) 0%, #7c7bd4 100%);
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+        box-shadow:
+          6px 6px 16px rgba(92, 91, 168, 0.35),
+          -4px -4px 12px var(--shadow-light);
+      }
+      .result-answer .answer-label {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.82rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+      .result-answer .answer-value {
+        color: #fff;
+        font-family: "DM Serif Display", serif;
+        font-size: 2.4rem;
+      }
+      .result-answer .answer-meta {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.82rem;
+        margin-top: 6px;
+      }
+
+      /* ─── Polynomial equation ─── */
+      .equation-box {
+        background: var(--bg);
+        box-shadow:
+          inset 3px 3px 8px var(--shadow-dark),
+          inset -3px -3px 8px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        font-size: 0.9rem;
+        color: var(--accent);
+        font-weight: 500;
+        line-height: 1.7;
+        word-break: break-word;
+        margin-bottom: 16px;
+        font-family: "Courier New", monospace;
+      }
+
+      /* ─── Steps ─── */
+      .steps-list {
+        list-style: none;
+      }
+      .step-item {
+        position: relative;
+        padding: 14px 16px 14px 44px;
+        background: var(--surface);
+        border-radius: var(--radius-xs);
+        margin-bottom: 10px;
+        box-shadow:
+          3px 3px 8px var(--shadow-dark),
+          -3px -3px 8px var(--shadow-light);
+        font-size: 0.84rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+      }
+      .step-item .step-num {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .step-item strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .step-item code {
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.82rem;
+      }
+
+      /* ─── Chart ─── */
+      .chart-wrapper {
+        background: var(--bg);
+        box-shadow:
+          inset 4px 4px 12px var(--shadow-dark),
+          inset -4px -4px 12px var(--shadow-light);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+      }
+
+      /* ─── Divider ─── */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+      }
+
+      /* ─── Badge ─── */
+      .badge {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-left: 8px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        vertical-align: middle;
+      }
+
+      /* ─── Responsive ─── */
+      @media (min-width: 640px) {
+        .two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+      }
+
+      /* ─── Animations ─── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.35s ease both;
+      }
+    </style>
+  </head>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then(() => console.log("Service Worker Registered"));
+    }
+  </script>
+
+  <script>
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("loader");
+      const app = document.getElementById("app");
+
+      // Total durasi animasi (~3 detik)
+      setTimeout(() => {
+        loader.style.transition = "opacity 0.4s ease";
+        loader.style.opacity = "0";
+
+        setTimeout(() => {
+          loader.style.display = "none";
+          app.classList.add("show");
+        }, 400);
+      }, 3000);
+    });
+  </script>
+  <body>
+    <div class="wrapper">
+      <!-- Header -->
+      <div class="header fade-up">
+        <h1>Interpolasi <span>Polinom</span></h1>
+        <p>
+          Metode numerik untuk menghitung nilai fungsi dari titik-titik diskrit
+        </p>
+      </div>
+
+      <div class="two-col">
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Method -->
+          <div class="card fade-up" style="animation-delay: 0.05s">
+            <div class="card-title">
+              <span class="icon">🔢</span> Metode Interpolasi
+            </div>
+            <div class="method-toggle">
+              <button class="method-btn active">
+                <span class="method-label">Polinom Lagrange</span>
+                <span class="method-sub"
+                  >Derajat otomatis (n-1) • Titik bebas</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- Data Points -->
+          <div class="card fade-up" style="animation-delay: 0.1s">
+            <div class="card-title">
+              <span class="icon">📍</span>
+              Titik Data
+              <span class="badge" id="point-count">2 titik</span>
+            </div>
+
+            <div class="points-header">
+              <span>x</span><span>y = f(x)</span><span></span>
+            </div>
+            <div id="points-container"></div>
+            <button class="add-btn" onclick="addPoint()">+ Tambah Titik</button>
+          </div>
+
+          <!-- X Target -->
+          <div class="card fade-up" style="animation-delay: 0.15s">
+            <div class="card-title">
+              <span class="icon">🎯</span> Nilai x yang Dicari
+            </div>
+            <div class="x-target-row">
+              <span class="x-label">x target =</span>
+              <input
+                type="number"
+                id="x-target"
+                class="point-input"
+                placeholder="misal: 9.2"
+                step="any"
+              />
+            </div>
+          </div>
+
+          <div class="card fade-up" style="animation-delay: 0.18s">
+            <div class="card-title">
+              <span class="icon">📘</span> Fungsi Asli (Opsional)
+            </div>
+            <input
+              type="text"
+              id="true-func"
+              class="point-input"
+              placeholder="contoh: Math.sin(x), x*x + 2*x + 1"
+            />
+          </div>
+          <!-- Calculate -->
+          <div class="fade-up" style="animation-delay: 0.2s">
+            <button class="calc-btn" onclick="calculate()">
+              Hitung Interpolasi
+            </button>
+            <div class="error-msg" id="error-msg">
+              ⚠ <span id="error-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+          <!-- Result -->
+          <div class="result-section" id="result-section">
+            <div class="card fade-up">
+              <div class="result-answer" id="result-answer">
+                <div class="answer-label">Nilai Interpolasi</div>
+                <div class="answer-value" id="answer-value">—</div>
+                <div class="answer-meta" id="answer-meta"></div>
+              </div>
+
+              <div class="card-title">
+                <span class="icon">📐</span> Persamaan Polinom
+              </div>
+              <div class="equation-box" id="equation-box"></div>
+
+              <div class="divider"></div>
+
+              <div class="card-title">
+                <span class="icon">📋</span> Langkah Perhitungan
+              </div>
+              <ul class="steps-list" id="steps-list"></ul>
+            </div>
+
+            <!-- Chart -->
+            <div class="card fade-up" style="animation-delay: 0.05s">
+              <div class="card-title">
+                <span class="icon">📈</span> Grafik Interpolasi
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="interp-chart" height="220"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Placeholder -->
+          <div
+            id="result-placeholder"
+            class="card fade-up"
+            style="
+              animation-delay: 0.15s;
+              text-align: center;
+              padding: 50px 20px;
+            "
+          >
+            <div style="font-size: 3rem; margin-bottom: 14px">🧮</div>
+            <div
+              style="
+                font-family: &quot;DM Serif Display&quot;, serif;
+                font-size: 1.1rem;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+              "
+            >
+              Siap Berhitung
+            </div>
+            <div
+              style="
+                color: var(--text-muted);
+                font-size: 0.84rem;
+                line-height: 1.6;
+              "
+            >
+              Masukkan titik data dan nilai x yang ingin dicari, kemudian tekan
+              tombol <strong>Hitung Interpolasi</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ─── State ───────────────────────────────────────────────
+      let method = "lagrange";
+      let minPoints = 2;
+      let chartInstance = null;
+
+      // ─── Init ─────────────────────────────────────────────────
+      function init() {
+        document.getElementById("points-container").innerHTML = "";
+        for (let i = 0; i < minPoints; i++) addPoint();
+      }
+
+      function setMethod(m) {
+        method = m;
+        minPoints = m === "linear" ? 2 : m === "quadratic" ? 3 : 2;
+        document
+          .getElementById("btn-linear")
+          .classList.toggle("active", m === "linear");
+        document
+          .getElementById("btn-quadratic")
+          .classList.toggle("active", m === "quadratic");
+        document
+          .getElementById("btn-lagrange")
+          .classList.toggle("active", m === "lagrange");
+        init();
+        hideResult();
+      }
+
+      // ─── Point rows ────────────────────────────────────────────
+      function addPoint() {
+        const container = document.getElementById("points-container");
+        const idx = container.children.length;
+        const row = document.createElement("div");
+        row.className = "point-row";
+        row.innerHTML = `
+    <input type="number" class="point-input px" placeholder="x${idx}" step="any"/>
+    <input type="number" class="point-input py" placeholder="f(x${idx})" step="any"/>
+    <button class="delete-btn" onclick="removePoint(this)" title="Hapus">✕</button>`;
+        container.appendChild(row);
+        updatePointCount();
+      }
+
+      function removePoint(btn) {
+        const rows = document.querySelectorAll(".point-row");
+        if (rows.length <= minPoints) {
+          showError(`❗ Minimal ${minPoints} titik diperlukan.`);
+          return;
+        }
+        btn.closest(".point-row").remove();
+        updatePointCount();
+      }
+
+      function updatePointCount() {
+        const n = document.querySelectorAll(".point-row").length;
+        document.getElementById("point-count").textContent = `${n} titik`;
+      }
+
+      // ─── Data collection ───────────────────────────────────────
+      function getPoints() {
+        const rows = document.querySelectorAll(".point-row");
+        const pts = [];
+        for (const row of rows) {
+          const x = parseFloat(row.querySelector(".px").value);
+          const y = parseFloat(row.querySelector(".py").value);
+          if (isNaN(x) || isNaN(y)) return null;
+          pts.push({ x, y });
+        }
+        return pts;
+      }
+
+      // ─── Validation ────────────────────────────────────────────
+      function validate(pts, xTarget) {
+        if (!pts) return "❗ Semua nilai x dan f(x) wajib diisi.";
+        if (pts.length < 2) return "❗ Minimal 2 titik diperlukan.";
+        if (isNaN(xTarget)) return "❗ Nilai x target harus diisi.";
+
+        const xs = pts.map((p) => p.x);
+
+        // duplikat x
+        if (new Set(xs).size !== xs.length)
+          return "❗ Nilai x tidak boleh sama (akan menyebabkan pembagian nol).";
+
+        // valid number
+        for (let p of pts) {
+          if (!isFinite(p.x) || !isFinite(p.y))
+            return "❗ Semua nilai harus angka valid.";
+        }
+
+        // warning extrapolation
+        const min = Math.min(...xs);
+        const max = Math.max(...xs);
+        if (xTarget < min || xTarget > max) {
+          console.warn("⚠ Extrapolation terjadi");
+        }
+
+        // batas stabilitas
+        if (pts.length > 15)
+          return "⚠ Maksimal 15 titik (hindari error numerik).";
+
+        return null;
+      }
+      // ─── Calculation: Lagrange ─────────────────────────────────
+      function evalLagrange(pts, x) {
+        let sum = 0;
+        for (let i = 0; i < pts.length; i++) {
+          let Li = 1;
+          for (let j = 0; j < pts.length; j++) {
+            if (i !== j) Li *= (x - pts[j].x) / (pts[i].x - pts[j].x);
+          }
+          sum += pts[i].y * Li;
+        }
+        return sum;
+      }
+
+      function lagrangeInterp(pts, xTarget) {
+        const n = pts.length;
+        const degree = n - 1;
+
+        // 🔒 Guard: minimal titik
+        if (n < 2) {
+          throw new Error("Minimal 2 titik diperlukan");
+        }
+
+        // 🔒 Guard: cek duplikasi x
+        const xs = pts.map((p) => p.x);
+        if (new Set(xs).size !== xs.length) {
+          throw new Error("Nilai x duplikat → pembagian nol");
+        }
+
+        // ⚠️ Warning numerik
+        if (n > 12) {
+          console.warn("⚠ Banyak titik → potensi Runge phenomenon");
+        }
+
+        // ─── Hitung Li(xTarget) ─────────────────────────────
+        const Lvals = [];
+
+        for (let i = 0; i < n; i++) {
+          let Li = 1;
+
+          for (let j = 0; j < n; j++) {
+            if (i === j) continue;
+
+            const denom = pts[i].x - pts[j].x;
+
+            // 🔒 Hindari pembagian nol
+            if (denom === 0) {
+              throw new Error("Pembagian nol terdeteksi");
+            }
+
+            Li *= (xTarget - pts[j].x) / denom;
+          }
+
+          Lvals.push(Li);
+        }
+
+        // ─── Hasil akhir ───────────────────────────────────
+        const yResult = pts.reduce((sum, p, i) => {
+          return sum + p.y * Lvals[i];
+        }, 0);
+
+        // 🔒 Validasi hasil
+        if (!Number.isFinite(yResult)) {
+          throw new Error("Hasil tidak valid (NaN / Infinity)");
+        }
+
+        // ─── String L_i(x) (lebih rapi) ────────────────────
+        function liStr(i) {
+          const num = [];
+          const den = [];
+
+          for (let j = 0; j < n; j++) {
+            if (j === i) continue;
+
+            const xj = pts[j].x;
+            const xi = pts[i].x;
+
+            const sign = xj >= 0 ? "−" : "+";
+
+            num.push(`(x ${sign} ${fmt(Math.abs(xj))})`);
+            den.push(`(${fmt(xi)} − ${fmt(xj)})`);
+          }
+
+          return `[${num.join(" · ")} / ${den.join(" · ")}]`;
+        }
+
+        // ─── Equation (lebih clean) ────────────────────────
+        const equationLines = [
+          `p${degree}(x) = ${pts.map((p, i) => `${fmt(p.y)}·L${i}(x)`).join(" + ")}`,
+          "",
+          ...pts.map((_, i) => `L${i}(x) = ${liStr(i)}`),
+        ];
+
+        const equation = equationLines.join("\n");
+
+        // ─── Table rows ────────────────────────────────────
+        const liTableRows = pts
+          .map((p, i) => {
+            const contrib = p.y * Lvals[i];
+
+            return `
+<tr>
+  <td>${i}</td>
+  <td>${fmt(p.x)}</td>
+  <td>${fmt(p.y)}</td>
+  <td class="hi">${fmt(Lvals[i])}</td>
+  <td>${fmt(p.y)} × ${fmt(Lvals[i])} = ${fmt(contrib)}</td>
+</tr>`;
+          })
+          .join("");
+
+        // ─── Formula detail ────────────────────────────────
+        const liFormulas = pts
+          .map((_, i) => {
+            const parts = [];
+
+            for (let j = 0; j < n; j++) {
+              if (i === j) continue;
+
+              parts.push(
+                `(${fmt(xTarget)} − ${fmt(pts[j].x)}) / (${fmt(pts[i].x)} − ${fmt(pts[j].x)})`,
+              );
+            }
+
+            return `<code>L${i}(${fmt(xTarget)}) = ${parts.join(" × ")} = ${fmt(Lvals[i])}</code>`;
+          })
+          .join("<br>");
+
+        // ─── Sum string ────────────────────────────────────
+        const sumStr = pts
+          .map((p, i) => `${fmt(p.y)} × ${fmt(Lvals[i])}`)
+          .join(" + ");
+
+        // ─── Steps (lebih clean & readable) ────────────────
+        const steps = [
+          `Diberikan <strong>${n} titik</strong> untuk membentuk polinom derajat <strong>${degree}</strong>:<br>
+     ${pts.map((p, i) => `<code>(x${i},y${i}) = (${fmt(p.x)}, ${fmt(p.y)})</code>`).join(" &nbsp; ")}`,
+
+          `Hitung basis Lagrange di x = ${fmt(xTarget)}:<br>
+     <small style="color:var(--text-muted)">
+     L<sub>i</sub>(x) = ∏<sub>j≠i</sub> (x − x<sub>j</sub>) / (x<sub>i</sub> − x<sub>j</sub>)
+     </small><br><br>
+     ${liFormulas}`,
+
+          `Tabel kontribusi tiap titik:<br><br>
+     <table class="lag-table">
+       <thead>
+         <tr>
+           <th>i</th><th>xᵢ</th><th>yᵢ</th>
+           <th>Lᵢ(${fmt(xTarget)})</th>
+           <th>yᵢ·Lᵢ</th>
+         </tr>
+       </thead>
+       <tbody>${liTableRows}</tbody>
+     </table>`,
+
+          `Validasi: ∑ Lᵢ(x) = <code>${fmt(Lvals.reduce((a, v) => a + v, 0))}</code> ≈ 1`,
+
+          `Hasil akhir:<br>
+     <code>p${degree}(${fmt(xTarget)}) = ${sumStr} = <strong>${fmt(yResult)}</strong></code>`,
+        ];
+
+        return {
+          yResult,
+          equation,
+          steps,
+          lagrangePts: pts,
+        };
+      }
+
+      // ─── Main calculate ────────────────────────────────────────
+      function calculate() {
+        clearError();
+
+        const pts = getPoints();
+        const xTargetInput = document.getElementById("x-target").value.trim();
+        const xTarget = parseFloat(xTargetInput);
+
+        // 🔒 Validasi awal
+        const err = validate(pts, xTarget);
+        if (err) {
+          showError(err);
+          return;
+        }
+
+        // 🔽 Clone + sort (hindari mutasi data asli)
+        const sortedPts = [...pts].sort((a, b) => a.x - b.x);
+
+        // ⚠️ Deteksi extrapolation
+        const xs = sortedPts.map((p) => p.x);
+        const min = Math.min(...xs);
+        const max = Math.max(...xs);
+
+        const isExtrapolation = xTarget < min || xTarget > max;
+        if (isExtrapolation) {
+          console.warn("⚠ Extrapolation terjadi (x di luar range data)");
+        }
+
+        let result;
+
+        try {
+          result = lagrangeInterp(sortedPts, xTarget);
+
+          // 🔒 Validasi hasil numerik
+          if (!result || !Number.isFinite(result.yResult)) {
+            throw new Error("Invalid numeric result");
+          }
+        } catch (e) {
+          console.error("Error perhitungan:", e);
+          showError(
+            "❗ Perhitungan gagal (pembagian nol / data duplikat / numerik tidak stabil).",
+          );
+          return;
+        }
+
+        // ✅ tampilkan hasil + info extrapolation
+        showResult(result, sortedPts, xTarget, isExtrapolation);
+      }
+
+      // ─── Display ───────────────────────────────────────────────
+      function showResult(result, allPts, xTarget, isExtrapolation = false) {
+        document.getElementById("result-placeholder").style.display = "none";
+        const section = document.getElementById("result-section");
+        section.classList.add("show");
+
+        document.getElementById("answer-value").textContent = fmt(
+          result.yResult,
+        );
+
+        let metaText = `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)} • Polinom Lagrange (derajat ${allPts.length - 1})`;
+        if (isExtrapolation) {
+          metaText += " • ⚠ Extrapolation";
+        }
+        // ✅ HITUNG ERROR JIKA ADA FUNGSI ASLI
+        const funcStr = document.getElementById("true-func").value;
+
+        if (funcStr) {
+          const trueVal = evalTrueFunction(funcStr, xTarget);
+
+          if (trueVal !== null && isFinite(trueVal)) {
+            const error = Math.abs(trueVal - result.yResult);
+            metaText += ` • Error ≈ ${fmt(error)}`;
+          }
+        }
+
+        document.getElementById("answer-meta").textContent = metaText;
+
+        document.getElementById("equation-box").innerHTML = result.equation;
+
+        const list = document.getElementById("steps-list");
+        list.innerHTML = result.steps
+          .map(
+            (s, i) => `
+    <li class="step-item"><span class="step-num">${i + 1}</span>${s}</li>`,
+          )
+          .join("");
+
+        drawChart(allPts, result, xTarget);
+
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function hideResult() {
+        document.getElementById("result-section").classList.remove("show");
+        document.getElementById("result-placeholder").style.display = "";
+      }
+
+      function evalTrueFunction(expr, x) {
+        try {
+          // whitelist fungsi yang boleh
+          const allowed = /^[0-9x+\-*/().\sMathsinco]*$/i;
+          if (!allowed.test(expr)) return null;
+
+          return Function("x", `"use strict"; return (${expr})`)(x);
+        } catch {
+          return null;
+        }
+      }
+
+      // ─── Chart ─────────────────────────────────────────────────
+      function drawChart(allPts, result, xTarget) {
+        const ctx = document.getElementById("interp-chart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+
+        const sorted = [...allPts].sort((a, b) => a.x - b.x);
+        const xMin = sorted[0].x;
+        const xMax = sorted[sorted.length - 1].x;
+        const range = xMax - xMin || 1;
+        const pad = range * 0.25;
+
+        const polyX = [];
+        const polyY = [];
+        const steps = 120;
+        for (let i = 0; i <= steps; i++) {
+          const x = xMin - pad + ((range + 2 * pad) * i) / steps;
+          polyX.push(x);
+          if (method === "linear") {
+            const [a0, a1] = result.coeff;
+            polyY.push(a0 + a1 * x);
+          } else if (method === "quadratic") {
+            const [a0, a1, a2] = result.coeff;
+            polyY.push(a0 + a1 * x + a2 * x * x);
+          } else {
+            polyY.push(evalLagrange(result.lagrangePts, x));
+          }
+        }
+
+        const lineData = polyX.map((x, i) => ({ x, y: polyY[i] }));
+        const ptData = allPts.map((p) => ({ x: p.x, y: p.y }));
+        const target = [{ x: xTarget, y: result.yResult }];
+
+        chartInstance = new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Polinom Interpolasi",
+                data: lineData,
+                type: "line",
+                borderColor: "#5c5ba8",
+                backgroundColor: "transparent",
+                borderWidth: 2.5,
+                pointRadius: 0,
+                tension: 0.4,
+                order: 3,
+              },
+              {
+                label: "Titik Data",
+                data: ptData,
+                backgroundColor: "#7c7bd4",
+                borderColor: "#fff",
+                borderWidth: 2,
+                pointRadius: 7,
+                pointHoverRadius: 9,
+                order: 2,
+              },
+              {
+                label: `f(${fmt(xTarget)}) ≈ ${fmt(result.yResult)}`,
+                data: target,
+                backgroundColor: "#f4836a",
+                borderColor: "#fff",
+                borderWidth: 2.5,
+                pointRadius: 9,
+                pointStyle: "star",
+                order: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            interaction: { mode: "nearest", intersect: false },
+            plugins: {
+              legend: {
+                labels: {
+                  font: { family: "DM Sans", size: 11 },
+                  color: "#7070a8",
+                  usePointStyle: true,
+                  boxWidth: 10,
+                },
+              },
+              tooltip: {
+                backgroundColor: "#ededfb",
+                borderColor: "rgba(92,91,168,0.2)",
+                borderWidth: 1,
+                titleColor: "#3a3a6e",
+                bodyColor: "#7070a8",
+                callbacks: {
+                  label: (ctx) =>
+                    `(${fmt(ctx.parsed.x)}, ${fmt(ctx.parsed.y)})`,
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: { color: "rgba(160,160,200,0.15)" },
+                ticks: {
+                  color: "#9898c0",
+                  font: { family: "DM Sans", size: 10 },
+                },
+              },
+              y: {
+                grid: { color: "rgba(160,160,200,0.15)" },
+                ticks: {
+                  color: "#9898c0",
+                  font: { family: "DM Sans", size: 10 },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ─── Utils ─────────────────────────────────────────────────
+      function fmt(v) {
+        if (isNaN(v)) return "?";
+        if (Number.isInteger(v)) return v.toString();
+        return parseFloat(v.toFixed(6)).toString();
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error-msg");
+        document.getElementById("error-text").textContent = msg;
+        el.classList.add("show");
+      }
+      function clearError() {
+        document.getElementById("error-msg").classList.remove("show");
+      }
+
+      // ─── Boot ─────────────────────────────────────────────────
+      init();
+    </script>
+  </body>
+</html>
